@@ -49,7 +49,7 @@ class APIBase:
 
                 api_params[k] = p
 
-        api_path = f'https://{self.domain}.freshsales.io{path}'
+        api_path = f'https://{self.domain}.freshsales.io/api{path}'
         logger.debug('calling get %s passing params %s', api_path, api_params)
         response = requests.get(
             url=api_path,
@@ -127,7 +127,9 @@ class APIBase:
 
 class Contacts(APIBase):
     def __init__(self, domain, api_key):
-        default_params = {'include': 'sales_accounts,appointments,owner,contact_status',
+        # default_params = {'include': 'sales_accounts,appointments,owner,contact_status,notes',
+        #                   'sort': 'updated_at', 'sort_type': 'desc'}
+        default_params = {'include': 'sales_accounts,owner,contact_status,notes',
                           'sort': 'updated_at', 'sort_type': 'desc'}
         super().__init__(domain=domain, api_key=api_key,
                          resource_type='contacts', default_params=default_params)
@@ -136,6 +138,8 @@ class Contacts(APIBase):
         users = []
         if 'users' in container:
             users = container['users']
+        if 'notes' in container:
+            obj['notes_history'] = container['notes']
         contact_statuses = []
         if 'contact_status' in container:
             contact_statuses = container['contact_status']
@@ -160,6 +164,7 @@ class Contacts(APIBase):
                 ap['outcome'] = outcome
                 res.append(ap)
             obj['appointments'] = res
+        
 
 
     def get_activities(self, id):
@@ -171,7 +176,7 @@ class Contacts(APIBase):
 
 class Accounts(APIBase):
     def __init__(self, domain, api_key):
-        default_params = {'include': 'appointments,owner,industry_type',
+        default_params = {'include': 'appointments,owner,industry_type,notes',
                           'sort': 'updated_at', 'sort_type': 'desc'}
         super().__init__(domain=domain, api_key=api_key,
                          resource_type='sales_accounts', default_params=default_params)
@@ -180,6 +185,8 @@ class Accounts(APIBase):
         users = []
         if 'users' in container:
             users = container['users']
+        if 'notes' in container:
+            obj['notes_history'] = container['notes']
         if 'owner_id' in obj:
             owner = APIBase._find_obj_by_id(objs=users, id=obj['owner_id'])
             obj['owner'] = owner
@@ -193,7 +200,7 @@ class Accounts(APIBase):
 
 class Deals(APIBase):
     def __init__(self, domain, api_key):
-        default_params = {'include': 'sales_account,appointments,owner,deal_stage',
+        default_params = {'include': 'sales_account,appointments,owner,deal_stage,notes',
                           'sort': 'updated_at', 'sort_type': 'desc'}
         super().__init__(domain=domain, api_key=api_key,
                          resource_type='deals', default_params=default_params)
@@ -204,6 +211,8 @@ class Deals(APIBase):
         deal_stages = []
         if 'users' in container:
             users = container['users']
+        if 'notes' in container:
+            obj['notes_history'] = container['notes']
         if 'sales_accounts' in container:
             sales_accounts = container['sales_accounts']
         if 'deal_stages' in container:
@@ -222,7 +231,7 @@ class Deals(APIBase):
 
 class Leads(APIBase):
     def __init__(self, domain, api_key):
-        default_params = {'include': 'sales_account,appointments,owner,lead_stage',
+        default_params = {'include': 'sales_account,appointments,owner,lead_stage,notes',
                           'sort': 'updated_at', 'sort_type': 'desc'}
         super().__init__(domain=domain, api_key=api_key,
                          resource_type='leads', default_params=default_params)
@@ -232,6 +241,8 @@ class Leads(APIBase):
         lead_stage = []
         if 'users' in container:
             users = container['users']
+        if 'notes' in container:
+            obj['notes_history'] = container['notes']
         if 'owner_id' in obj:
             owner = APIBase._find_obj_by_id(objs=users, id=obj['owner_id'])
             obj['owner'] = owner
